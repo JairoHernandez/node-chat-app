@@ -15,7 +15,7 @@ var io = socketIO(server); // This is our websockets server.
 // Registers an event listener to do something when event happens.
 // 'connnection' let's you listen for new connection. The arrow function is the callback funcion.
 io.on('connection', (socket) => {
-
+    console.log('New user connected');
     //Tells client there is new email
     //Not a listener so will not provide callback, but instead data.
     //By default can be empty without custom data to let browser know something happened. 
@@ -26,19 +26,39 @@ io.on('connection', (socket) => {
     //     createdAt: 123
     // });
 
+    // Only fires on the local tab browser.
+    socket.emit('newMessage', {
+        from : 'Admin',
+        text: 'Welcome to the chat app',
+        createdAt: new Date().getTime()
+    });
+
+    // Fires only in all other tabs.
+    socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'New user joined',
+        createdAt: new Date().getTime()
+    });
+
     /// Custom event listener waiting for 'createMessage' form socket.emit.
     socket.on('createMessage', (message) => {
         console.log('Create message', message);
         
-        // Broadcast to all.
+        // Send to every connection.
         io.emit('newMessage', {
             from: message.from,
             text: message.text,
             createdAt: new Date().getTime()
         });
+
+        // // Broadcast to everyone excep that socket(myself).
+        // socket.broadcast.emit('newMessage', {
+        //     from: message.from,
+        //     text: message.text,
+        //     createdAt: new Date().getTime()
+        // });
     });
 
-    console.log('New user connected');
     socket.on('disconnect', () => {
         console.log('User was disconnected')
     });
