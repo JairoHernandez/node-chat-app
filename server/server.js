@@ -2,6 +2,7 @@ const path=require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const http = require('http');
+const {generateMessage} = require('./utils/message');
 
 const port = process.env.PORT || 3000; //process.env.PORT  used by Heroku
 const publicPath = path.join(__dirname, '/../public');
@@ -27,29 +28,16 @@ io.on('connection', (socket) => {
     // });
 
     // Only fires on the local tab browser.
-    socket.emit('newMessage', {
-        from : 'Admin',
-        text: 'Welcome to the chat app',
-        createdAt: new Date().getTime()
-    });
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
 
-    // Fires only in all other tabs.
-    socket.broadcast.emit('newMessage', {
-        from: 'Admin',
-        text: 'New user joined',
-        createdAt: new Date().getTime()
-    });
+    // Fires only in all other tabs. In other words broadcast to everyone excep that socket(myself).
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
     /// Custom event listener waiting for 'createMessage' form socket.emit.
     socket.on('createMessage', (message) => {
         console.log('Create message', message);
-        
         // Send to every connection.
-        io.emit('newMessage', {
-            from: message.from,
-            text: message.text,
-            createdAt: new Date().getTime()
-        });
+        io.emit('newMessage', generateMessage(message.from, message.text));
 
         // // Broadcast to everyone excep that socket(myself).
         // socket.broadcast.emit('newMessage', {
