@@ -20,15 +20,22 @@ io.on('connection', (socket) => {
     //Not a listener so will not provide callback, but instead data.
     //By default can be empty without custom data to let browser know something happened. 
     //You can send 1 value or send an object with multiple values which is better.
-    socket.emit('newMessage', {
-        from: 'jen@emc.com',
-        text: 'Message from Jen.',
-        createdAt: 123
-    });
+    // socket.emit('newMessage', {
+    //     from: 'jen@emc.com',
+    //     text: 'Message from Jen.',
+    //     createdAt: 123
+    // });
 
     /// Custom event listener waiting for 'createMessage' form socket.emit.
     socket.on('createMessage', (message) => {
         console.log('Create message', message);
+        
+        // Broadcast to all.
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
     });
 
     console.log('New user connected');
