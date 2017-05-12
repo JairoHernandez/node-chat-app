@@ -15,6 +15,22 @@ var io = socketIO(server); // This is our websockets server.
 // Registers an event listener to do something when event happens.
 // 'connnection' let's you listen for new connection. The arrow function is the callback funcion.
 io.on('connection', (socket) => {
+
+    //Tells client there is new email
+    //Not a listener so will not provide callback, but instead data.
+    //By default can be empty without custom data to let browser know something happened. 
+    //You can send 1 value or send an object with multiple values which is better.
+    socket.emit('newMessage', {
+        from: 'jen@emc.com',
+        text: 'Message from Jen.',
+        createdAt: 123
+    });
+
+    /// Custom event listener waiting for 'createMessage' form socket.emit.
+    socket.on('createMessage', (message) => {
+        console.log('Create message', message);
+    });
+
     console.log('New user connected');
     socket.on('disconnect', () => {
         console.log('User was disconnected')
