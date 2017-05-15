@@ -2,7 +2,7 @@ const path=require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const http = require('http');
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 const port = process.env.PORT || 3000; //process.env.PORT  used by Heroku
 const publicPath = path.join(__dirname, '/../public');
@@ -17,15 +17,6 @@ var io = socketIO(server); // This is our websockets server.
 // 'connnection' let's you listen for new connection. The arrow function is the callback funcion.
 io.on('connection', (socket) => {
     console.log('New user connected');
-    //Tells client there is new email
-    //Not a listener so will not provide callback, but instead data.
-    //By default can be empty without custom data to let browser know something happened. 
-    //You can send 1 value or send an object with multiple values which is better.
-    // socket.emit('newMessage', {
-    //     from: 'jen@emc.com',
-    //     text: 'Message from Jen.',
-    //     createdAt: 123
-    // });
 
     // Only fires on the local tab browser.
     socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
@@ -39,13 +30,10 @@ io.on('connection', (socket) => {
         // Send to every connection.
         io.emit('newMessage', generateMessage(message.from, message.text));
         callback('This is from the server.');
+    });
 
-        // // Broadcast to everyone excep that socket(myself).
-        // socket.broadcast.emit('newMessage', {
-        //     from: message.from,
-        //     text: message.text,
-        //     createdAt: new Date().getTime()
-        // });
+    socket.on('createLocationMessage', (coords) => {
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     });
 
     socket.on('disconnect', () => {
