@@ -19,4 +19,27 @@ socket.on('disconnect', function () {
 // message is the object form soscket.io.
 socket.on('newMessage', function (message) {
     console.log('New message', message);
+
+    var li = jQuery('<li></li>'); // create element
+    li.text(`${message.from}: ${message.text}`);
+
+    jQuery('#messages').append(li); // append it
+});
+
+socket.emit('createMessage', {
+    from: 'Frank',
+    text: "Hi"
+}, function (data) {
+    console.log('Got it', data);
+});
+
+jQuery('#message-form').on('submit', function (e) {
+    e.preventDefault();
+
+    socket.emit('createMessage', {
+        from: 'User',
+        text: jQuery('[name=message]').val()
+    }, function () {
+
+    });
 });

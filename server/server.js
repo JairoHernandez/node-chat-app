@@ -34,10 +34,11 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
     /// Custom event listener waiting for 'createMessage' form socket.emit.
-    socket.on('createMessage', (message) => {
+    socket.on('createMessage', (message, callback) => {
         console.log('Create message', message);
         // Send to every connection.
         io.emit('newMessage', generateMessage(message.from, message.text));
+        callback('This is from the server.');
 
         // // Broadcast to everyone excep that socket(myself).
         // socket.broadcast.emit('newMessage', {
