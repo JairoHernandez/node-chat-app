@@ -26,13 +26,6 @@ socket.on('newMessage', function (message) {
     jQuery('#messages').append(li); // append it
 });
 
-socket.emit('createMessage', {
-    from: 'Frank',
-    text: "Hi"
-}, function (data) {
-    console.log('Got it', data);
-});
-
 socket.on('newLocationMessage', function (message) {
     var li = jQuery('<li></li>');
     var a = jQuery('<a target="_blank">My current location</a>'); // open in new tab
