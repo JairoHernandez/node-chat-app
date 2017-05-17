@@ -1,5 +1,24 @@
 var socket = io();
 
+function scrollToBottom () {
+    // Selectors
+    var messages = jQuery('#messages');
+    var newMessage = messages.children('li:last-child');
+    // Heights
+    var clientHeight = messages.prop('clientHeight'); // prop works on cross-browsers and it's non-jQuery
+    var scrollTop = messages.prop('scrollTop');
+    var scrollHeight = messages.prop('scrollHeight');
+    var newMessageHeight = newMessage.innerHeight(); // calculates height of message along with css padding.
+    console.log(newMessageHeight);
+    var lastMessageHeight = newMessage.prev().innerHeight();
+    console.log(newMessageHeight);
+
+    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        //console.log('Should scroll');
+        messages.scrollTop(scrollHeight);
+    }
+}
+
 // listeners need callback
 socket.on('connect', function () {
     console.log('Connected to server');
@@ -28,6 +47,7 @@ socket.on('newMessage', function (message) {
     });
 
     jQuery('#messages').append(html);
+    scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (message) {
@@ -40,6 +60,7 @@ socket.on('newLocationMessage', function (message) {
     });
 
     jQuery('#messages').append(html);
+    scrollToBottom();
 });
 
 jQuery('#message-form').on('submit', function (e) {
