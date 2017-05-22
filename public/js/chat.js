@@ -9,9 +9,9 @@ function scrollToBottom () {
     var scrollTop = messages.prop('scrollTop');
     var scrollHeight = messages.prop('scrollHeight');
     var newMessageHeight = newMessage.innerHeight(); // calculates height of message along with css padding.
-    console.log(newMessageHeight);
+    //console.log(newMessageHeight);
     var lastMessageHeight = newMessage.prev().innerHeight();
-    console.log(newMessageHeight);
+    //console.log(newMessageHeight);
 
     if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
         //console.log('Should scroll');
@@ -22,16 +22,32 @@ function scrollToBottom () {
 // listeners need callback
 socket.on('connect', function () {
     console.log('Connected to server');
+    // Grap params browser url
+    var params = jQuery.deparam(window.location.search);
 
-    // Put createMessage emitter event in here since we need to be connected to server first. Sends message to server.
-    // socket.emit('createMessage', {
-    //     from: 'jairo@emc.com',
-    //     text: 'Hey. This is Jairo message.'
-    // });
+    socket.emit('join', params, function(err) {
+        if (err) {
+            alert(err); // Can instead use a emotal using bootstrap or foundation.
+            window.location.href = "/"; // SEnds you back to login page after clicking Ok.
+        } else {
+            console.log('No error');
+        }
+    });
 });
 
 socket.on('disconnect', function () {
     console.log('Disconnected from server');
+});
+
+socket.on('updateUserList', function(users) {
+    //console.log('Users list', users);
+    var ol = jQuery('<ol></ol>');
+
+    users.forEach(function (user) {
+        ol.append(jQuery('<li></li>').text(user));
+    });
+
+    jQuery('#users').html(ol);
 });
 
 //Custom event listener waiting for 'newMessage' from socket.emit.
