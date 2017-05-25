@@ -50,15 +50,30 @@ io.on('connection', (socket) => {
 
     /// Custom event listener waiting for 'createMessage' form socket.emit.
     socket.on('createMessage', (message, callback) => {
-        console.log('Create message', message);
-        // Send to every connection.
-        io.emit('newMessage', generateMessage(message.from, message.text));
-        //callback('This is from the server.');
+        // console.log('Create message', message);
+        // console.log(socket.id); // 8eLps2m01EKTqKfzAAAA
+        var user = users.getUser(socket.id); //  
+        // console.log(user); // { id: '8eLps2m01EKTqKfzAAAA', name: 'Jairo', room: 'room1' }
+
+        if (user && isRealString(message.text)) {
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
+
         callback('');
+
+        // // Send to every connection.
+        // io.emit('newMessage', generateMessage(message.from, message.text));
+        // //callback('This is from the server.');
+        // callback('');
     });
 
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        // io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        var user = users.getUser(socket.id);
+
+        if (user) {
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+        }
     });
 
     socket.on('disconnect', () => {
@@ -67,7 +82,7 @@ io.on('connection', (socket) => {
 
         if  (user) {
             io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has letf.`));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
         }
     });
 });
